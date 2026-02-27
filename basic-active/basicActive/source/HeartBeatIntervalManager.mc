@@ -112,6 +112,7 @@ class HeartBeatIntervalManager {
         var hrData = sensorData.heartRateData;
         if (hrData == null) {
             _writeEmptyRecord();
+            System.println("null data");
             return;
         }
 
@@ -123,6 +124,7 @@ class HeartBeatIntervalManager {
         }
         // Store for external access
         _lastIntervals = intervals;
+        System.println(intervals);
         
         // Write each interval to its own field
         var count = intervals.size();

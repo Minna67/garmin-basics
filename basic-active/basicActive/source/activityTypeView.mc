@@ -35,7 +35,7 @@ class activityTypeView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             width / 2, 
-            height / 6, 
+            height / 9, 
             Graphics.FONT_SMALL, 
             "Activity Type", 
             Graphics.TEXT_JUSTIFY_CENTER
@@ -60,15 +60,20 @@ class activityTypeView extends WatchUi.View {
         // Button dimensions
         var buttonWidth = width * 0.7;
         var buttonHeight = height * 0.12;
-        var buttonSpacing = height * 0.15;
+        var buttonSpacing = height * 0.2;
         
-        // Cig button
-        var cigButtonY = height * 0.35;
-        _drawButton(dc, "Cig", buttonWidth, buttonHeight, cigButtonY, Graphics.COLOR_GREEN);
+        // Sleep button
+        var sleepButtonY = height * 0.3;
+        _drawButton(dc, "Sleep", buttonWidth, buttonHeight, sleepButtonY, Graphics.COLOR_GREEN);
         
-        // Vape button  
-        var vapeButtonY = cigButtonY + buttonHeight + buttonSpacing;
-        _drawButton(dc, "Vape", buttonWidth, buttonHeight, vapeButtonY, Graphics.COLOR_GREEN);
+        // Exercise button  
+        var exerciseButtonY = sleepButtonY + buttonSpacing;
+        _drawButton(dc, "Exercise", buttonWidth, buttonHeight, exerciseButtonY, Graphics.COLOR_GREEN);
+
+        // Stress button
+        var stressButtonY = exerciseButtonY + buttonSpacing;
+        _drawButton(dc, "Stress", buttonWidth, buttonHeight, stressButtonY, Graphics.COLOR_GREEN);
+
     }
 
     private function _drawButton(dc, text, buttonWidth, buttonHeight, buttonY, color) {

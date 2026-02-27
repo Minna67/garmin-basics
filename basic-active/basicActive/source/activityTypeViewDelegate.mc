@@ -9,8 +9,9 @@ class activityTypeViewDelegate extends WatchUi.BehaviorDelegate {
     private var _screenManager;
     
     // Button area coordinates - calculated once
-    private var _cigButtonX, _cigButtonY, _cigButtonWidth, _cigButtonHeight;
-    private var _vapeButtonX, _vapeButtonY, _vapeButtonWidth, _vapeButtonHeight;
+    private var _sleepButtonX, _sleepButtonY, _sleepButtonWidth, _sleepButtonHeight;
+    private var _exerciseButtonX, _exerciseButtonY, _exerciseButtonWidth, _exerciseButtonHeight;
+    private var _stressButtonX, _stressButtonY, _stressButtonWidth, _stressButtonHeight;
     
     function initialize(screenManager) {
         BehaviorDelegate.initialize();
@@ -30,20 +31,26 @@ class activityTypeViewDelegate extends WatchUi.BehaviorDelegate {
         
         var buttonWidth = width * 0.7;
         var buttonHeight = height * 0.12;
-        var buttonSpacing = height * 0.15;
+        var buttonSpacing = height * 0.2;
         var buttonX = (width - buttonWidth) / 2;
         
         // Cig button area
-        _cigButtonX = buttonX;
-        _cigButtonY = height * 0.35;
-        _cigButtonWidth = buttonWidth;
-        _cigButtonHeight = buttonHeight;
+        _sleepButtonX = buttonX;
+        _sleepButtonY = height * 0.3;
+        _sleepButtonWidth = buttonWidth;
+        _sleepButtonHeight = buttonHeight;
         
-        // Vape button area
-        _vapeButtonX = buttonX;
-        _vapeButtonY = _cigButtonY + buttonHeight + buttonSpacing;
-        _vapeButtonWidth = buttonWidth;
-        _vapeButtonHeight = buttonHeight;
+        // Exercise button area
+        _exerciseButtonX = buttonX;
+        _exerciseButtonY = _sleepButtonY + buttonSpacing;
+        _exerciseButtonWidth = buttonWidth;
+        _exerciseButtonHeight = buttonHeight;
+
+        // Stress buton area
+        _stressButtonX = buttonX;
+        _stressButtonY = _exerciseButtonY + buttonSpacing;
+        _stressButtonWidth = buttonWidth;
+        _stressButtonHeight = buttonHeight;
     }
     
     /**
@@ -56,17 +63,24 @@ class activityTypeViewDelegate extends WatchUi.BehaviorDelegate {
         
         System.println("INPUT: Tap detected on secondary view at (" + x + ", " + y + ")");
         
-        // Check cig button
-        if (_isPointInButton(x, y, _cigButtonX, _cigButtonY, _cigButtonWidth, _cigButtonHeight)) {
-            System.println("INPUT: Cigarette button tapped");
-            _startRecordingDirectly("cigarette");
+        // Check sleep button
+        if (_isPointInButton(x, y, _sleepButtonX, _sleepButtonY, _sleepButtonWidth, _sleepButtonHeight)) {
+            System.println("INPUT: Sleep button tapped");
+            _startRecordingDirectly("sleep");
             return true;
         }
         
-        // Check vape button
-        if (_isPointInButton(x, y, _vapeButtonX, _vapeButtonY, _vapeButtonWidth, _vapeButtonHeight)) {
-            System.println("INPUT: Vape button tapped");
-            _startRecordingDirectly("vape");
+        // Check exercise button
+        if (_isPointInButton(x, y, _exerciseButtonX, _exerciseButtonY, _exerciseButtonWidth, _exerciseButtonHeight)) {
+            System.println("INPUT: Exercise button tapped");
+            _startRecordingDirectly("exercise");
+            return true;
+        }
+
+        //Check stress button
+        if (_isPointInButton(x, y, _stressButtonX, _stressButtonY, _stressButtonWidth, _stressButtonHeight)) {
+            System.println("INPUT: Stress button tapped");
+            _startRecordingDirectly("stress");
             return true;
         }
         

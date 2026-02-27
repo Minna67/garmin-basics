@@ -19,8 +19,12 @@ class ActivityEventManager {
     
     // Event type constants for consistency
     private const EVENT_TYPE_NONE = 0;
-    private const EVENT_TYPE_CIGARETTE = 1;
-    private const EVENT_TYPE_VAPE = 2;
+    private const EVENT_TYPE_SLEEP = 1;
+    private const EVENT_TYPE_EXERCISE = 2;
+    private const EVENT_TYPE_STRESS = 3;
+    // Fatigue
+    // Rest
+    // Sickness
 
     
     /**
@@ -95,28 +99,45 @@ class ActivityEventManager {
     }
     
     /**
-     * Record a cigarette event
+     * Record a sleep event
      */
-    public function startCigaretteEvent() {
-        _recordEvent(EVENT_TYPE_CIGARETTE, 1, "cigarette");
+    public function startSleepEvent() {
+        _recordEvent(EVENT_TYPE_SLEEP, 1, "sleep");
     }
     
     /**
-     * Record a vape event
+     * Record a exercise event
      */
-    public function startVapeEvent() {
-        _recordEvent(EVENT_TYPE_VAPE, 1, "vape");
+    public function startExerciseEvent() {
+        _recordEvent(EVENT_TYPE_EXERCISE, 1, "exercise");
     }
 
-    public function endCigaretteEvent() {
-        _recordEvent(EVENT_TYPE_CIGARETTE, 0, "cigarette");
+    /**
+     * Record a stress event
+     */
+    public function startStressEvent() {
+        _recordEvent(EVENT_TYPE_STRESS, 1, "stress");
+    }
+
+    /**
+     * End a sleep event
+     */
+    public function endSleepEvent() {
+        _recordEvent(EVENT_TYPE_SLEEP, 0, "sleep");
     }
     
     /**
-     * Record a vape event
+     * End a exercise event
      */
-    public function endVapeEvent() {
-        _recordEvent(EVENT_TYPE_VAPE, 0, "vape");
+    public function endExerciseEvent() {
+        _recordEvent(EVENT_TYPE_EXERCISE, 0, "exercise");
+    }
+
+    /**
+     * End a stress event
+     */
+    public function endStressEvent() {
+        _recordEvent(EVENT_TYPE_STRESS, 0, "stress");
     }
     
     /**

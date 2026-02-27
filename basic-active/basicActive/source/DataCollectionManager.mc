@@ -182,10 +182,12 @@ class DataCollectionManager {
     }
 
     function logActivityStartEvent(activityType as Lang.String) as Void {
-        if (activityType.equals("cigarette")) {
-            _eventManager.startCigaretteEvent();
-        } else if (activityType.equals("vape")) {
-            _eventManager.startVapeEvent();
+        if (activityType.equals("sleep")) {
+            _eventManager.startSleepEvent();
+        } else if (activityType.equals("exercise")) {
+            _eventManager.startExerciseEvent();
+        } else if (activityType.equals("stress")) {
+            _eventManager.startStressEvent();
         } else {
             System.println("ERROR: Can't write timestamp for unknown activity type: " + activityType);
         }
@@ -193,10 +195,12 @@ class DataCollectionManager {
 
 
     function logActivityStopEvent(activityType as Lang.String) as Void {
-        if (activityType.equals("cigarette")) {
-            _eventManager.endCigaretteEvent();
-        } else if (activityType.equals("vape")) {
-            _eventManager.endVapeEvent();
+        if (activityType.equals("sleep")) {
+            _eventManager.endSleepEvent();
+        } else if (activityType.equals("exercise")) {
+            _eventManager.endExerciseEvent();
+        } else if (activityType.equals("stress")) {
+            _eventManager.endStressEvent();
         } else {
             System.println("ERROR: Can't write timestamp for unknown activity type: " + activityType);
         }
