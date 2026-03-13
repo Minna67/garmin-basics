@@ -4,7 +4,7 @@ import Toybox.System;
 import Toybox.Lang;
 
 /**
- * HeartBeatIntervalManager handles beat-to-beat heart rate interval data.
+ * CombinedSensorsManager handles beat-to-beat heart rate interval data and pulse oxygen saturation data.
  * 
  * Stores up to 5 raw R-R intervals per second for HRV research.
  * Each interval is stored in its own FIT field to preserve raw data.
@@ -15,21 +15,29 @@ import Toybox.Lang;
  * - 180 BPM = ~3 intervals/sec
  * 
  * 5 fields covers most cases including high heart rates.
+ *
+ *
  */
-class HeartBeatIntervalManager {
+class SensorManager {
     // FIT field IDs (must be unique within your app)
-    // Using IDs 3-8 (assuming 0-2 are used by other managers)
+    // Using IDs 3-9 (assuming 0-2 are used by other managers)
     private const HBI_BASE_FIELD_ID = 3;
     private const HBI_COUNT_FIELD_ID = 8;
     private const MAX_INTERVALS = 5;
+    private const PULSE_OX_FIELD_ID = 9;
     
     // Array of FIT fields for raw intervals
     private var _hbiFields = null;
     // Field to store count of valid intervals this second
     private var _hbiCountField = null;
+    private var _lastIntervals = null;
+
+    // Field to store pulse ox saturation percentage
+    private var _pulseOxField = null;
+    private var _lastOxygenSaturation = null;
     
     private var _isEnabled = false;
-    private var _lastIntervals = null;
+
     
     /**
      * Initialize the manager
@@ -37,7 +45,10 @@ class HeartBeatIntervalManager {
     public function initialize() {
         _hbiFields = new [MAX_INTERVALS];
         _lastIntervals = [];
-        Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE]);
+        Sensor.setEnabledSensors([
+            Sensor.SENSOR_HEARTRATE, 
+            Sensor.SENSOR_PULSE_OXIMETRY
+        ]);
     }
     
     /**
@@ -48,6 +59,7 @@ class HeartBeatIntervalManager {
     public function enable(session) {
         if (_isEnabled) {
             System.println("HBI: Already enabled");
+            System.println("Pulse Oxygen: Already enabled");
             return;
         }
         
@@ -81,20 +93,34 @@ class HeartBeatIntervalManager {
                 }
             );
             _hbiCountField.setData(0);
+
+            //field to store oxygen saturation percentage
+            _pulseOxField = session.createField(
+                "pulseOx",
+                PULSE_OX_FIELD_ID,
+                FitContributor.DATA_TYPE_UINT8,
+                {
+                    :mesgType => FitContributor.MESG_TYPE_RECORD,
+                    :units => "%"
+                }
+            );
+            _pulseOxField.setData(0);
             
-            // Register for heart beat interval data
+            // Register for heart beat interval and pulse oxygen data
             var options = {
                 :period => 1,
-                :heartBeatIntervals => { :enabled => true }
+                :heartBeatIntervals => { :enabled => true },
+                :oxygenSaturation => { :enabled => true }
 		    };
             
             Sensor.registerSensorDataListener(self.method(:onSensorData), options);
             
             _isEnabled = true;
             System.println("HBI: Enabled with " + MAX_INTERVALS + " interval fields");
+            System.println("Pulse Oxygen: Enabled");
             
         } catch (ex) {
-            System.println("HBI: Failed to enable - " + ex.getErrorMessage());
+            System.println("HBI/Pulse Oxygen: Failed to enable - " + ex.getErrorMessage());
             _cleanup();
             throw ex;
         }
@@ -111,20 +137,20 @@ class HeartBeatIntervalManager {
         
         var hrData = sensorData.heartRateData;
         if (hrData == null) {
-            _writeEmptyRecord();
-            System.println("null data");
+            _writeEmptyBBRecord();
+            System.println("HBI: null data");
             return;
         }
 
         
         var intervals = hrData.heartBeatIntervals;
         if (intervals == null || intervals.size() == 0) {
-            _writeEmptyRecord();
+            _writeEmptyBBRecord();
             return;
         }
         // Store for external access
         _lastIntervals = intervals;
-        System.println(intervals);
+        System.println("hbi: " + intervals);
         
         // Write each interval to its own field
         var count = intervals.size();
@@ -146,12 +172,26 @@ class HeartBeatIntervalManager {
         
         // Write count of valid intervals
         _hbiCountField.setData(count);
+
+        var pulseOx = null;
+		if (Activity has :getActivityInfo and Activity.getActivityInfo() has :currentOxygenSaturation) {
+			pulseOx = Activity.getActivityInfo().currentOxygenSaturation;
+		}
+
+        if (pulseOx == null){
+            _writeEmptyPulseOxRecord();
+            System.println("Pulse Oxygen: null data");
+            return;
+        }
+        _pulseOxField.setData(pulseOx);
+        // Store for external access
+        _lastOxygenSaturation = pulseOx;
     }
     
     /**
      * Write zeros when no data is available
      */
-    private function _writeEmptyRecord() {
+    private function _writeEmptyBBRecord() {
         for (var i = 0; i < MAX_INTERVALS; i++) {
             if (_hbiFields[i] != null) {
                 _hbiFields[i].setData(0);
@@ -159,6 +199,15 @@ class HeartBeatIntervalManager {
         }
         if (_hbiCountField != null) {
             _hbiCountField.setData(0);
+        }
+    }
+
+    /**
+     * Write zeros when no data is available
+     */
+    private function _writeEmptyPulseOxRecord() {
+        if (_pulseOxField != null) {
+            _pulseOxField.setData(0);
         }
     }
     
@@ -173,8 +222,9 @@ class HeartBeatIntervalManager {
         try {
             Sensor.unregisterSensorDataListener();
             System.println("HBI: Disabled");
+            System.println("PulseOx: Disabled");
         } catch (ex) {
-            System.println("HBI: Error during disable - " + ex.getErrorMessage());
+            System.println("HBI/PulseOx: Error during disable - " + ex.getErrorMessage());
         }
         
         _cleanup();
@@ -187,6 +237,13 @@ class HeartBeatIntervalManager {
         return _lastIntervals;
     }
     
+    /**
+     * Get the last received pulseOx
+     */
+    public function getLastPulseOx() {
+        return _lastOxygenSaturation;
+    }
+
     /**
      * Check if monitoring is enabled
      */
@@ -211,5 +268,9 @@ class HeartBeatIntervalManager {
         _hbiCountField = null;
         _isEnabled = false;
         _lastIntervals = [];
+
+        _pulseOxField = null;
+        _isEnabled = false;
+        _lastOxygenSaturation = null;
     }
 }

@@ -16,14 +16,14 @@ class DataCollectionManager {
 
     private var _batteryManager = null;
     private var _eventManager =  null;
-    private var _hbiManager = null;
+    private var _sensorManager = null;
 
     private const PREFIX = "BASIC_RECORDER_";
 
     function initialize() {
         _batteryManager = new BatteryManager();
         _eventManager = new ActivityEventManager();
-        _hbiManager = new HeartBeatIntervalManager();
+        _sensorManager = new SensorManager();
     }
 
     /**
@@ -97,8 +97,8 @@ class DataCollectionManager {
         _batteryManager.enable(_session);
         // Enable timestamp monitoring for events
         _eventManager.enable(_session);
-        // Enable heart beat interval monitoring
-        _hbiManager.enable(_session);
+        // Enable heart beat interval and  Oxygen Saturation monitoring
+        _sensorManager.enable(_session);
 
         System.println("Data collection started name is: " + _generateSessionName());
     }
@@ -117,8 +117,7 @@ class DataCollectionManager {
             // Disable battery monitoring (records final level)
             _batteryManager.disable();
             _eventManager.disable();
-            _hbiManager.disable();
-            
+            _sensorManager.disable();            
 
             _session.stop(); // stop the session "pause"
             _session.save(); // end the session and save FIT file
@@ -144,8 +143,8 @@ class DataCollectionManager {
             _eventManager.cleanup();
         }
 
-        if (_hbiManager != null) {
-            _hbiManager.cleanup();
+        if (_sensorManager != null) {
+            _sensorManager.cleanup();
         }
         
 
